@@ -386,7 +386,7 @@ def _admin_bookings_filters():
         )
 
         st.text_input(
-            "Reserver name contains",
+            "End User name contains",
             value=st.session_state.get("key_reserver", ""),
             key="key_reserver",
         )
