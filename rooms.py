@@ -7,6 +7,8 @@ import pandas as pd
 st.set_page_config(page_title="Rooms", layout="wide")
 DB_PATH = "data.db"
 
+db.drop_db()
+
 def room_card(name: str, img_url: Optional[str], description: Optional[str], details: list[dict]):
     details_html = "".join(
         f"<div class='detail-box'><img src='{i['icon']}'/><b>{i['label']}</b><div class='small'>{i['value']}</div></div>"
