@@ -565,7 +565,7 @@ def admin_panel_teacher(user):
     if not records:
         st.info("No teachers found.")
     else:
-        st.caption(f"Total teachers: {len(records)}")
+        st.caption(f"Total teachers: {len(records) -1}")
         for r in records:
             is_admin = r.get("short_name").lower() == "admin"
             if is_admin:
