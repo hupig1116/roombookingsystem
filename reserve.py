@@ -563,9 +563,8 @@ def admin_panel_teacher(user):
         st.info("No teachers found.")
     else:
         st.caption(f"Total teachers: {len(records)}")
-        
         for r in records:
-			is_self = r["short_name"] == user.short_name
+		    is_self = r["short_name"] == user.short_name
 			is_admin = r["short_name"] == "Admin"
 			role = "Admin" if is_admin else "Teacher"
 			
@@ -580,7 +579,6 @@ def admin_panel_teacher(user):
 		    with box:
 			    st.markdown(header_html, unsafe_allow_html=True)
 			    col_top = st.columns([2.5, 2.5, 2.5, 0.6, 1])
-			    
 				with col_top[0]:
 				    st.write(r["email"] if not is_admin else "—")
 			    with col_top[1]:
@@ -593,12 +591,12 @@ def admin_panel_teacher(user):
                     else:
                         if st.button("Edit", key=f"edit_t_{r['short_name']}"):
                             _edit_teacher_dialog(r, user.short_name)
-                with col_top[4]:
+				with col_top[4]:
                     if is_admin:
-                        st.button("Delete", key=f"del_t_{r['short_name']}", disabled=True)
+                       st.button("Delete", key=f"del_t_{r['short_name']}", disabled=True)
                     else:
                         if st.button("Delete", key=f"del_t_{r['short_name']}"):
-                        _delete_teacher_dialog(r, user.short_name)
+                            _delete_teacher_dialog(r, user.short_name)
 
 
 def admin_panel_teacher(user):
