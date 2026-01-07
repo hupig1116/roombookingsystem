@@ -6,6 +6,9 @@ import db
 
 
 def _ensure_time(tval):
+    """Normalize a time-like value to a datetime.time or None.
+    Accepts datetime.time, datetime.datetime, or strings like 'HH:MM' or 'HH:MM:SS'.
+    """
     if tval is None:
         return None
     try:
