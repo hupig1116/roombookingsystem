@@ -579,7 +579,7 @@ def admin_panel_teacher(user):
             )
 
             admin_header_html = (
-                f"<div style='background-color:#red;padding:8px;border-radius:6px;margin-bottom:8px'>"
+                f"<div style='background-color:#f2e5ff;padding:8px;border-radius:6px;margin-bottom:8px'>"
                 f"<strong>{r['full_name']}</strong>&emsp;&emsp;&emsp;"
                 f"<span style='background:#222;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px'>{role}</span>"
                 f"</div>"
