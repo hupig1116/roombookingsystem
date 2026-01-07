@@ -609,7 +609,7 @@ def admin_panel_teacher(user):
             with col_top[2]:
                 st.write(r.get("password", ""))
             with col_top[3]:
-                if st.button("Edit", key=f"edit_t_{r('short_name')}", disabled=True):
+                if st.button("Edit", key=f"edit_t_{r.get('short_name')}", disabled=True):
                     _edit_teacher_dialog(r, getattr(user.short_name))  
             with col_top[4]:
                 if st.button("Delete", key=f"del_t_{r.get('short_name')}", disabled=True):
