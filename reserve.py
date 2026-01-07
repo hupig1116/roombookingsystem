@@ -603,22 +603,16 @@ def admin_panel_teacher(user):
                     
                 col_top = st.columns([2.5, 2.5, 2.5, 0.6, 1])
             with col_top[0]:
-                st.write(r["email"] if not is_admin else "—")
+                st.write(r["email"])
             with col_top[1]:
                 st.write(r["short_name"])
             with col_top[2]:
                 st.write(r.get("password", ""))
             with col_top[3]:
-                if is_admin:
-                    st.button("Edit", key=f"edit_t_{r['short_name']}", disabled=True)
-                else:
-                    if st.button("Edit", key=f"edit_t_{r['short_name']}"):
-                        _edit_teacher_dialog(r, user.short_name)
+                if st.button("Edit", key=f"edit_t_{r('short_name')}", disabled=True):
+                    _edit_teacher_dialog(r, getattr(user.short_name))  
             with col_top[4]:
-                if is_admin:
-                    st.button("Delete", key=f"del_t_{r['short_name']}", disabled=True)
-                else:
-                    if st.button("Delete", key=f"del_t_{r['short_name']}"):
+                if st.button("Delete", key=f"del_t_{r.get('short_name')}", disabled=True):
                         _delete_teacher_dialog(r, user.short_name)
 
 
