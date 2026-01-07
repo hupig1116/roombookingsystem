@@ -568,11 +568,25 @@ def admin_panel_teacher(user):
         st.caption(f"Total teachers: {len(records)}")
         for r in records:
             is_self = r["short_name"] == user.short_name
-            is_admin = r["short_name"] in admin_set
+            is_admin = r["short_name"] == "ADMIN"
             role = "Admin" if is_admin else "Teacher"
 
-            header_html = (
+            teacher_header_html = (
                 f"<div style='background-color:#fff9e5;padding:8px;border-radius:6px;margin-bottom:8px'>"
+                f"<strong>{r['full_name']}</strong>&emsp;&emsp;&emsp;"
+                f"<span style='background:#222;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px'>{role}</span>"
+                f"</div>"
+            )
+
+            admin_header_html = (
+                f"<div style='background-color:#red;padding:8px;border-radius:6px;margin-bottom:8px'>"
+                f"<strong>{r['full_name']}</strong>&emsp;&emsp;&emsp;"
+                f"<span style='background:#222;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px'>{role}</span>"
+                f"</div>"
+            )
+
+            admin01_header_html = (
+                f"<div style='background-color:#blue;padding:8px;border-radius:6px;margin-bottom:8px'>"
                 f"<strong>{r['full_name']}</strong>&emsp;&emsp;&emsp;"
                 f"<span style='background:#222;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px'>{role}</span>"
                 f"</div>"
@@ -580,7 +594,14 @@ def admin_panel_teacher(user):
 
             box = st.container(border=True)
             with box:
-                st.markdown(header_html, unsafe_allow_html=True)
+                if role = "Admin":
+                    st.markdown(admin_header_html, unsafe_allow_html=True)
+                else:
+                    st.markdown(teacher_header_html, unsafe_allow_html=True)
+
+                if r["short_name"] == "ADMIN":
+                    st.markdown(admin01_header_html, unsafe_allow_html=True)
+                    
                 col_top = st.columns([2.5, 2.5, 2.5, 0.6, 1])
             with col_top[0]:
                 st.write(r["email"] if not is_admin else "—")
