@@ -567,9 +567,12 @@ def admin_panel_teacher(user):
     else:
         st.caption(f"Total teachers: {len(records)}")
         for r in records:
+            is_admin = r.get("short_name").lower() == "admin"
+            if is_admin:
+                continue
+                
             is_self = r.get("short_name") == getattr(user, "short_name", None)
             role = "Admin" if r.get("short_name") in admin_set else "Teacher"
-            
 
             teacher_header_html = (
                 f"<div style='background-color:#fff9e5;padding:8px;border-radius:6px;margin-bottom:8px'>"
@@ -584,20 +587,12 @@ def admin_panel_teacher(user):
                 f"<span style='background:#222;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px'>{role}</span>"
                 f"</div>"
             )
-
-            admin01_header_html = (
-                f"<div style='background-color:blue;padding:8px;border-radius:6px;margin-bottom:8px'>"
-                f"<strong>{r['full_name']}</strong>&emsp;&emsp;&emsp;"
-                f"<span style='background:#222;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px'>{role}</span>"
-                f"</div>"
-            )
+                
 
             box = st.container(border=True)
             with box:
                 if role == "Teacher":
                     st.markdown(teacher_header_html, unsafe_allow_html=True)
-                elif r.get("short_name") == "ADMIN":
-                    st.markdown(admin01_header_html, unsafe_allow_html=True)
                 else :
                     st.markdown(admin_header_html, unsafe_allow_html=True)
                     
