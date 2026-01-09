@@ -5,27 +5,6 @@ import time as time_mod
 import db
 
 
-def _ensure_time(tval):
-    """Normalize a time-like value to a datetime.time or None.
-    Accepts datetime.time, datetime.datetime, or strings like 'HH:MM' or 'HH:MM:SS'.
-    """
-    if tval is None:
-        return None
-    try:
-        from datetime import time as _time
-    except Exception:
-        _time = time
-    if isinstance(tval, datetime):
-        return tval.time()
-    if hasattr(tval, 'hour') and hasattr(tval, 'minute'):
-        return tval
-    if isinstance(tval, str):
-        for fmt in ("%H:%M:%S", "%H:%M"):
-            try:
-                return datetime.strptime(tval, fmt).time()
-            except Exception:
-                pass
-    return None
 
 def _is_admin(user):
     if not user:
@@ -798,8 +777,8 @@ def app():
             elif "@" not in reserver_email:
                 errors.append("A valid email address is required")
 
-            start_time = _ensure_time(start_time)
-            end_time = _ensure_time(end_time)
+            start_time = start_time
+            end_time = end_time
 
             if start_time is None or end_time is None:
                 errors.append("Start time and end time are required and must be valid.")
