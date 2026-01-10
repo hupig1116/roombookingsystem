@@ -334,11 +334,6 @@ def delete_booking() -> bool:
     conn.commit()
     return True
 
-def delete_booking_by_id(booking_id: int) -> bool:
-    c.execute("DELETE FROM bookings WHERE id = ?", (booking_id,))
-    conn.commit()
-    return True
-
 def is_available_excluding(
     booking_id: int,
     room_id: int,
@@ -456,8 +451,7 @@ def list_teachers() -> List[Teacher]:
 def list_teachers_with_passwords() -> List[dict]:
     teachers = list_teachers()
     c.execute("SELECT * FROM logins")
-    logins = c.fetchall()
-    pw_map = {row[0]: row[1] for row in logins}
+    pw_map = {row[0]: row[1] for row in c.fetchall()}
     return [{"short_name": t.short_name, "full_name": t.full_name, "email": t.email, "password": pw_map.get(t.short_name)} for t in teachers]
 
 def list_teacher_short_name(short_name: str) -> bool:

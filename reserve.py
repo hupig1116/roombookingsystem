@@ -43,13 +43,13 @@ def _login_dialog():
 @st.dialog("Edit Booking")
 def _edit_booking_dialog(booking):
     rooms = db.get_all_rooms()
-    room_options = {room.id: f"{room.name} (Capacity: {room.capacity})" for room in rooms}
-    room_ids = list(room_options.keys())
-    room_index = room_ids.index(booking.room_id) if booking.room_id in room_ids else 0
+    room_options = [f"{room.name} (Capacity: {room.capacity})" for room in rooms]
 
+            
     col1, col2 = st.columns(2)
     with col1:
-        new_room_id = st.selectbox("Room", options=room_ids, index=room_index, format_func=lambda i: room_options[i])
+        selected_room = st.selectbox("Select Room", options=room_options)
+        new_room_id = rooms[room_options.index(selected_room)].id 
         new_date = st.date_input("Date", value=booking.booking_date)
         new_start = st.time_input("Start Time", value=booking.start_time)
         new_end = st.time_input("End Time", value=booking.end_time)
@@ -61,37 +61,39 @@ def _edit_booking_dialog(booking):
 
     if st.button("Save changes"):
         teacher_record = db.list_teacher_short_name(new_owner)
-        if teacher_record == False:
-            st.error(f"Booking Owner '{new_owner}' does not exist. Please enter a valid teacher username.")
-            return
-        
+
         errors = []
         if new_start >= new_end:
             errors.append("End Time must be after start time.")
         if not new_visitor.strip():
             errors.append("End User Name is required.")
         if not new_email.strip():
-            errors.append("Valid End User Email is required.")
+            errors.append("Email is required.")
+        elif "@" not in new_email:
+            errors.append("Valid email is Required.")
         if not (new_owner or "").strip():
             errors.append("Booking Owner is Required.")
         if not new_purpose.strip():
             errors.append("Purpose is Required.")
-        if "@" not in new_email:
-            errors.append("Valid email is Required.")
+
 
         if errors:
             for e in errors:
                 st.error(e)
+            return
+        
+        if teacher_record == False:
+            st.error(f"Booking Owner '{new_owner}' does not exist. Please enter a valid teacher username.")
             return
 
         old_room = booking.room_id
         old_date = booking.booking_date
         old_start = booking.start_time
         old_end = booking.end_time
-        old_visitor = (booking.visitor_name or "").strip()
-        old_email = (booking.visitor_email or "").strip().lower()
-        old_purpose = booking.purpose or ""
-        old_owner = (booking.short_name or "").strip().upper()
+        old_visitor = (booking.visitor_name).strip()
+        old_email = (booking.visitor_email).strip().lower()
+        old_purpose = (booking.purpose).strip()
+        old_owner = (booking.short_name).strip().upper()
 
         room_changed = new_room_id != old_room
         date_changed = new_date != old_date
@@ -200,41 +202,42 @@ def _edit_teacher_dialog(record, current_user_short):
 
         if email_changed:
             for t in db.list_teachers():
-                existing_email = (getattr(t, "email", None) or (t.get("email") if isinstance(t, dict) else None) or "")
-                existing_short = (getattr(t, "short_name", None) or (t.get("short_name") if isinstance(t, dict) else None))
-                if existing_email and existing_email.strip().lower() == new_email_norm and existing_short != old_short:
+                existing_email = getattr(t, "email", "").strip().lower()
+                existing_short = getattr(t, "short_name", "")
+                if existing_email == new_email.strip().lower() and existing_short != old_short:
                     st.error("Email is already used by another teacher.")
                     return
 
-        effective_short = old_short
         if short_changed:
             ok_rename = db.rename_teacher(old_short, new_short)
             if not ok_rename:
                 st.error("Username already exists.")
                 return
-            effective_short = new_short
-
-        payload_password = new_password if password_changed else None
+            
+        payload_password = new_password if password_changed else None 
 
         if any([full_changed, email_changed, password_changed]):
             ok_update = db.update_teacher(
-                effective_short,
+                new_short, 
                 new_full,
-                new_email_norm,
+                new_email.strip().lower(),
                 payload_password
             )
+
             if not ok_update:
                 st.error("Failed to update teacher.")
                 return
 
         if admin_changed:
-            if role_admin and not db.is_admin_check(effective_short):
-                db.add_admin(effective_short)
-            elif not role_admin and db.is_admin_check(effective_short):
-                if effective_short == current_user_short:
+            current_is_admin = db.is_admin_check(new_short)
+            if role_admin and not current_is_admin:
+                db.add_admin(new_short)
+            elif not role_admin and current_is_admin:
+                if new_short == current_user_short:
                     st.error("You cannot remove your own admin role.")
                     return
-                db.remove_admin(effective_short)
+                db.remove_admin(new_short)
+
 
         st.success("Teacher updated")
         time_mod.sleep(0.4)
@@ -262,6 +265,7 @@ def _admin_bookings_filters():
     room_filter_options = {0: "All Rooms"}
     for room in rooms:
         room_filter_options[room.id] = room.name
+        
     all_bookings = db.get_bookings()
     months = ["All", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     years = sorted({b.booking_date.year for b in all_bookings if getattr(b, "booking_date", None) is not None})
@@ -463,7 +467,7 @@ def _admin_bookings_filters():
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <div>
                                         <span style="font-weight:700;">{room}</span>
-                                        <span style="color:#666;"> • {booking_date_str} {start_str}-{end_str}</span>
+                                        <span style="color:#666;">  {booking_date_str} {start_str}-{end_str}</span>
                                     </div>
                                     <div style="font-size:12px;color:#666;">Owner: <b>{owner}</b></div>
                                 </div>
@@ -546,7 +550,7 @@ def admin_panel_teacher(user):
 
     norm = []
     for r in records:
-        if not isinstance(r, dict):
+        if not (r, dict):
             r = db.list_teachers_with_passwords()
             
         short = (r.get("short_name") or "")
@@ -616,30 +620,27 @@ def admin_panel_teacher(user):
                 errors.append("Username is required.")
             if not new_full:
                 errors.append("Full name is required.")
-            if not new_email or "@" not in new_email:
+            if not new_email.strip():
+                errors.append("Email is required")
+            elif "@" not in new_email:
                 errors.append("Valid email is required.")
             if not new_password:
                 errors.append("Password is required.")
-            if len(new_password) < 8:
+            elif len(new_password) < 8:
                 errors.append("Password must have at least 8 characters.")
+            
+            if errors:
+                for e in errors:
+                    st.error(e)
 
             teachers = db.list_teachers() or []
-            username_conflict = False
-            email_conflict = False
             for t in teachers:
-                existing_short = getattr(t, "short_name", t.get("short_name") if isinstance(t, dict) else None)
-                existing_email = getattr(t, "email", t.get("email") if isinstance(t, dict) else None)
+                existing_short = getattr(t, "short_name")
+                existing_email = getattr(t, "email")
                 if existing_short and existing_short == new_short:
-                    username_conflict = True
-                if (existing_email or "") and (existing_email or "").strip().lower() == new_email:
-                    email_conflict = True
-                if username_conflict and email_conflict:
-                    break
-
-            if username_conflict:
-                errors.append("Username already exists.")
-            if email_conflict:
-                errors.append("Email is already used by another teacher.")
+                    errors.append("Username already exists.")
+                if (existing_email or "").strip() == new_email:
+                    errors.append("Email is already used by another teacher.")
 
             if errors:
                 for e in errors:
@@ -691,7 +692,6 @@ def admin_panel_teacher(user):
 
 ###room booking###
 def app():
-    st.set_page_config(layout="wide")
     st.markdown("<h1 style='text-align: center;'>Reserve</h1>", unsafe_allow_html=True)
     st.markdown("<h6 style='text-align: center;'>Find a room that fits your needs.</h6>", unsafe_allow_html=True)
 
@@ -718,12 +718,12 @@ def app():
     st.subheader("Create a Booking")
     st.caption("Fill in the form to reserve a room")
 
-    room_options = {room.id: f"{room.name} (Capacity: {room.capacity if room.capacity is not None else 'N/A'})" for room in rooms}
-    options = list(room_options.keys())
+    room_options = [f"{room.name} (Capacity: {room.capacity})" for room in rooms]
     with st.form("reserve"):
         col1, col2 = st.columns([3, 2])
         with col1:
-            selected_room_id = st.selectbox("Select Room", options=options, format_func=lambda i: room_options[i])
+            selected_room = st.selectbox("Select Room", options=room_options)
+            selected_room_id = rooms[room_options.index(selected_room)].id 
             booking_date = st.date_input("Booking Date", min_value=date.today(), value=date.today())
             default_start = (datetime.now() + timedelta(hours=1)).time().replace(minute=0, second=0, microsecond=0)
             default_end = (datetime.now() + timedelta(hours=4)).time().replace(minute=0, second=0, microsecond=0)
@@ -766,7 +766,7 @@ def app():
                     booking_html = f"""
                     <div style="background-color:#ccffff;padding:15px;border-radius:12px;margin-bottom:10px">
                     <strong>You are about to Create Booking:</strong><br><br>
-                    <strong>Room: </strong> {room_options[selected_room_id]}<br>
+                    <strong>Room: </strong> {selected_room_id}<br>
                     <strong>Booking Date: </strong> {booking_date}<br>
                     <strong>Time: </strong>From {start_time.strftime('%H:%M')} To {end_time.strftime('%H:%M')}<br>
                     <strong>End User: </strong> {reserver_name.strip()}<br>
@@ -828,3 +828,7 @@ def app():
         st.markdown("<h3 style='text-align: center;'>Teachers</h3>", unsafe_allow_html=True)
         st.markdown("---")
         admin_panel_teacher(user)
+
+
+
+        

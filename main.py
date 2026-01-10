@@ -5,13 +5,10 @@ import rooms
 import reserve
 import manage
 
-st.set_page_config(page_title="Room Booking", layout="wide", initial_sidebar_state="expanded")
 
 SIDEBAR_STYLES = {
-    "nav": {"background-color": "transparent"},
     "nav-link-selected": {"background-color": "rgb(174,28,43)", "font-size": "17px", "font-weight": "bold", "color": "white"},
     "container": {"background-color": "transparent", "font-size": "17px"},
-    "menu-icon": {"color": "transparent"},
 }
 
 st.markdown(
@@ -23,7 +20,7 @@ st.markdown(
             background-position: center top;
             padding-top: 80px;
             background-size: 178.6px 100px !important;
-            width: 250px !important;
+            width: 220px !important;
         }
     </style>
     """,
