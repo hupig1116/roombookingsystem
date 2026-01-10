@@ -424,21 +424,18 @@ def _admin_bookings_filters():
     if no_filters:
         filtered = db.get_bookings()
     else:
-        try:
-            filtered = db.query_bookings(
-                room_id=room_id,
-                date_mode=sel_date_scope,
-                booking_date=date_of_booked,
-                month=month_int,
-                year=year_int,
-                time_from=time_from,
-                time_to=time_to,
-                reserver=reserver_param,
-                purpose=purpose_param,
-                short_name=owner_param,
+        filtered = db.query_bookings(
+            room_id=room_id,
+            date_mode=sel_date_scope,
+            booking_date=date_of_booked,
+            month=month_int,
+            year=year_int,
+            time_from=time_from,
+            time_to=time_to,
+            reserver=reserver_param,
+            purpose=purpose_param,
+            short_name=owner_param,
             )
-        except Exception:
-            filtered = db.get_bookings()
 
     page_size = st.session_state.get("key_page_size", 10)
     page_index = st.session_state.get("key_page_index", 0)
@@ -774,9 +771,6 @@ def app():
                 errors.append("Reserver email is required")
             elif "@" not in reserver_email:
                 errors.append("A valid email address is required")
-
-            start_time = start_time
-            end_time = end_time
 
             if start_time is None or end_time is None:
                 errors.append("Start time and end time are required and must be valid.")
