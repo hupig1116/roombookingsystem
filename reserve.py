@@ -422,11 +422,11 @@ def _admin_bookings_filters():
         st.caption(f"Showing {len(current_page)} of {total} bookings")
         nav_col1, nav_col2 = st.columns([1, 1])
         with nav_col1:
-            if st.button("Prev", use_container_width= True, disabled=page_index <= 0):
+            if st.button("Prev", width= "stretch", disabled=page_index <= 0):
                 st.session_state["key_page_index"] = max(0, page_index - 1)
                 st.rerun()
         with nav_col2:
-            if st.button("Next",use_container_width= True, disabled=page_index >= max_index):
+            if st.button("Next",width= "stretch", disabled=page_index >= max_index):
                 st.session_state["key_page_index"] = min(max_index, page_index + 1)
                 st.rerun()
 
@@ -479,7 +479,7 @@ def _admin_bookings_filters():
                             unsafe_allow_html=True,
                         )
                     with right:
-                        if st.button("Edit", key=f"edit_b_{b.id}", use_container_width=True):
+                        if st.button("Edit", key=f"edit_b_{b.id}", width= "stretch"):
                             _edit_booking_dialog(b)
                         if st.button("Delete", key=f"del_b_{b.id}", use_container_width= True):
                             _delete_booking_dialog(b)
@@ -487,7 +487,7 @@ def _admin_bookings_filters():
             @st.dialog("Delete All Bookings")
             def delete_all_bookings_dialog():
                 st.error("This will permanently delete all bookings.", icon="⚠️")
-                confirm = st.button("Confirm Delete", type="primary", use_container_width=True, on_click=clear_filters)
+                confirm = st.button("Confirm Delete", type="primary", width= "stretch", on_click=clear_filters)
 
                 if confirm:
                     db.delete_booking()
@@ -495,7 +495,7 @@ def _admin_bookings_filters():
                     time_mod.sleep(0.8)
                     st.rerun()
 
-            if st.button("Delete All Bookings", type="primary", use_container_width=True):
+            if st.button("Delete All Bookings", type="primary", width= "stretch"):
                 delete_all_bookings_dialog()   
 
 #### Admin Teacher Management ###
@@ -591,10 +591,10 @@ def admin_panel_teacher(user):
                     )
                     a, b = st.columns(2)
                     with a:
-                        if st.button("Edit", key=f"edit_t_{short_name}", use_container_width=True):
+                        if st.button("Edit", key=f"edit_t_{short_name}", width= "stretch"):
                             _edit_teacher_dialog(r, getattr(user, "short_name", ""))
                     with b:
-                        if st.button("Delete", key=f"del_t_{short_name}", use_container_width=True):
+                        if st.button("Delete", key=f"del_t_{short_name}", width= "stretch"):
                             _delete_teacher_dialog(r, getattr(user, "short_name", ""))
 
     st.subheader("Add New Teacher")
